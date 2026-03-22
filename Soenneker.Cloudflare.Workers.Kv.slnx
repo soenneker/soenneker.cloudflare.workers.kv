@@ -7,6 +7,10 @@
     <File Path=".github/workflows/codeql.yml" />
     <File Path=".github/workflows/publish-package.yml" />
   </Folder>
-  <Project Path="src/Soenneker.Cloudflare.Workers.Kv/Soenneker.Cloudflare.Workers.Kv.csproj" />
-  <Project Path="test/Soenneker.Cloudflare.Workers.Kv.Tests/Soenneker.Cloudflare.Workers.Kv.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Soenneker.Cloudflare.Workers.Kv/Soenneker.Cloudflare.Workers.Kv.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Soenneker.Cloudflare.Workers.Kv.Tests/Soenneker.Cloudflare.Workers.Kv.Tests.csproj" />
+  </Folder>
 </Solution>
