@@ -1,20 +1,19 @@
 using Soenneker.Cloudflare.Workers.Kv.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Cloudflare.Workers.Kv.Tests;
 
-[Collection("Collection")]
-public sealed class CloudflareWorkersKvUtilTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public sealed class CloudflareWorkersKvUtilTests : HostedUnitTest
 {
     private readonly ICloudflareWorkersKvUtil _util;
 
-    public CloudflareWorkersKvUtilTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public CloudflareWorkersKvUtilTests(Host host) : base(host)
     {
         _util = Resolve<ICloudflareWorkersKvUtil>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
