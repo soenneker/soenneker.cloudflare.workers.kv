@@ -27,7 +27,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         _logger = logger;
     }
 
-    public async ValueTask<Workers_kv_namespace_list_namespaces_200?> ListNamespaces(string accountId, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceListNamespaces200?> ListNamespaces(string accountId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         _logger.LogDebug("Listing KV namespaces for account {AccountId}", accountId);
@@ -43,13 +43,13 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_create_a_namespace_200?> CreateNamespace(string accountId, string title, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceCreateANamespace200?> CreateNamespace(string accountId, string title, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(title);
         _logger.LogInformation("Creating KV namespace {Title} for account {AccountId}", title, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
-        var body = new Workers_kv_create_rename_namespace_body { Title = title };
+        var body = new WorkersKvCreateRenameNamespaceBody { Title = title };
         try
         {
             return await client.Accounts[accountId].Storage.Kv.Namespaces.PostAsync(body, null, cancellationToken).NoSync();
@@ -61,7 +61,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_get_a_namespace_200?> GetNamespace(string accountId, string namespaceId, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceGetANamespace200?> GetNamespace(string accountId, string namespaceId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
@@ -78,14 +78,14 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_rename_a_namespace_200?> RenameNamespace(string accountId, string namespaceId, string title, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceRenameANamespace200?> RenameNamespace(string accountId, string namespaceId, string title, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         ArgumentException.ThrowIfNullOrEmpty(title);
         _logger.LogInformation("Renaming KV namespace {NamespaceId} to {Title} for account {AccountId}", namespaceId, title, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
-        var body = new Workers_kv_create_rename_namespace_body { Title = title };
+        var body = new WorkersKvCreateRenameNamespaceBody { Title = title };
         try
         {
             return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].PutAsync(body, null, cancellationToken).NoSync();
@@ -190,7 +190,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_list_a_namespace_s_keys_200?> ListKeys(string accountId, string namespaceId, string? prefix = null, int? limit = null, string? cursor = null, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceListANamespaceSKeys200?> ListKeys(string accountId, string namespaceId, string? prefix = null, int? limit = null, string? cursor = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
@@ -212,7 +212,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_read_the_metadata_for_a_key_200?> GetKeyMetadata(string accountId, string namespaceId, string keyName, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceReadTheMetadataForAKey200?> GetKeyMetadata(string accountId, string namespaceId, string keyName, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
@@ -230,7 +230,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_get_multiple_key_value_pairs_200?> BulkGet(string accountId, string namespaceId, IReadOnlyList<string> keys, bool withMetadata = false, Workers_kv_namespace_get_multiple_key_value_pairs_type? type = null, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceGetMultipleKeyValuePairs200?> BulkGet(string accountId, string namespaceId, IReadOnlyList<string> keys, bool withMetadata = false, WorkersKvNamespaceGetMultipleKeyValuePairs_type? type = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
@@ -238,7 +238,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         if (keys.Count > 100) throw new ArgumentException("Maximum 100 keys allowed for bulk get.", nameof(keys));
         _logger.LogDebug("Bulk getting {Count} KV keys from namespace {NamespaceId}", keys.Count, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
-        var body = new Workers_kv_namespace_get_multiple_key_value_pairs
+        var body = new WorkersKvNamespaceGetMultipleKeyValuePairs
         {
             Keys = new List<string>(keys),
             WithMetadata = withMetadata,
@@ -255,7 +255,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_write_multiple_key_value_pairs_200?> BulkPut(string accountId, string namespaceId, IReadOnlyList<Workers_kv_bulk_write_item> pairs, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceWriteMultipleKeyValuePairs200?> BulkPut(string accountId, string namespaceId, IReadOnlyList<WorkersKvBulkWriteItem> pairs, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
@@ -263,7 +263,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         if (pairs.Count > 10000) throw new ArgumentException("Maximum 10,000 pairs allowed for bulk put.", nameof(pairs));
         _logger.LogDebug("Bulk putting {Count} KV pairs to namespace {NamespaceId}", pairs.Count, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
-        var body = new List<Workers_kv_bulk_write_item>(pairs);
+        var body = new List<WorkersKvBulkWriteItem>(pairs);
         try
         {
             return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Bulk.PutAsync(body, null, cancellationToken).NoSync();
@@ -275,7 +275,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<Workers_kv_namespace_delete_multiple_key_value_pairs_200?> BulkDelete(string accountId, string namespaceId, IReadOnlyList<string> keys, CancellationToken cancellationToken = default)
+    public async ValueTask<WorkersKvNamespaceDeleteMultipleKeyValuePairs200?> BulkDelete(string accountId, string namespaceId, IReadOnlyList<string> keys, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
