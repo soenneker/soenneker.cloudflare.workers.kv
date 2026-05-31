@@ -10,6 +10,7 @@ using Soenneker.Extensions.ValueTask;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -131,6 +132,11 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
             _logger.LogDebug("KV value for key {KeyName} in namespace {NamespaceId} was not found", keyName, namespaceId);
             return null;
         }
+        catch (WorkersKvApiResponseCommonFailure ex)
+        {
+            _logger.LogError(ex, "Failed to get KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+            throw CreateFailureException("get", keyName, namespaceId, ex);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
@@ -169,6 +175,11 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         {
             await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)].PutAsync(multipartBody, requestConfig, cancellationToken).NoSync();
         }
+        catch (WorkersKvApiResponseCommonFailure ex)
+        {
+            _logger.LogError(ex, "Failed to put KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+            throw CreateFailureException("put", keyName, namespaceId, ex);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to put KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
@@ -191,6 +202,11 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
         {
             _logger.LogDebug("KV key {KeyName} in namespace {NamespaceId} was already absent", keyName, namespaceId);
+        }
+        catch (WorkersKvApiResponseCommonFailure ex)
+        {
+            _logger.LogError(ex, "Failed to delete KV key {KeyName} from namespace {NamespaceId}", keyName, namespaceId);
+            throw CreateFailureException("delete", keyName, namespaceId, ex);
         }
         catch (Exception ex)
         {
@@ -236,6 +252,11 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         {
             _logger.LogDebug("KV metadata for key {KeyName} in namespace {NamespaceId} was not found", keyName, namespaceId);
             return null;
+        }
+        catch (WorkersKvApiResponseCommonFailure ex)
+        {
+            _logger.LogError(ex, "Failed to get KV metadata for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+            throw CreateFailureException("get metadata for", keyName, namespaceId, ex);
         }
         catch (Exception ex)
         {
@@ -312,5 +333,31 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
     private static string EncodeKeyName(string keyName)
     {
         return Uri.EscapeDataString(keyName);
+    }
+
+    private static InvalidOperationException CreateFailureException(string operation, string keyName, string namespaceId, WorkersKvApiResponseCommonFailure exception)
+    {
+        return new InvalidOperationException(
+            $"Failed to {operation} KV key {keyName} in namespace {namespaceId}. Status: {exception.ResponseStatusCode}. {GetFailureMessage(exception)}",
+            exception);
+    }
+
+    private static string GetFailureMessage(WorkersKvApiResponseCommonFailure exception)
+    {
+        List<WorkersKvMessagesItem>? errors = exception.Errors?.Value;
+
+        if (errors == null || errors.Count == 0)
+            return exception.Message;
+
+        return string.Join("; ", errors.Select(error =>
+        {
+            if (error.Code.HasValue && !string.IsNullOrWhiteSpace(error.Message))
+                return $"{error.Code}: {error.Message}";
+
+            if (error.Code.HasValue)
+                return error.Code.Value.ToString();
+
+            return error.Message ?? exception.Message;
+        }));
     }
 }
