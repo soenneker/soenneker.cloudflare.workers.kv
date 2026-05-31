@@ -124,7 +124,12 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName].GetAsync(null, cancellationToken).NoSync();
+            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)].GetAsync(null, cancellationToken).NoSync();
+        }
+        catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
+        {
+            _logger.LogDebug("KV value for key {KeyName} in namespace {NamespaceId} was not found", keyName, namespaceId);
+            return null;
         }
         catch (Exception ex)
         {
@@ -162,7 +167,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
         try
         {
-            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName].PutAsync(multipartBody, requestConfig, cancellationToken).NoSync();
+            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)].PutAsync(multipartBody, requestConfig, cancellationToken).NoSync();
         }
         catch (Exception ex)
         {
@@ -181,7 +186,11 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         var body = new WithKey_nameDeleteRequestBody();
         try
         {
-            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName].DeleteAsync(body, null, cancellationToken).NoSync();
+            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)].DeleteAsync(body, null, cancellationToken).NoSync();
+        }
+        catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
+        {
+            _logger.LogDebug("KV key {KeyName} in namespace {NamespaceId} was already absent", keyName, namespaceId);
         }
         catch (Exception ex)
         {
@@ -221,7 +230,12 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         try
         {
-            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Metadata[keyName].GetAsync(null, cancellationToken).NoSync();
+            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Metadata[EncodeKeyName(keyName)].GetAsync(null, cancellationToken).NoSync();
+        }
+        catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
+        {
+            _logger.LogDebug("KV metadata for key {KeyName} in namespace {NamespaceId} was not found", keyName, namespaceId);
+            return null;
         }
         catch (Exception ex)
         {
@@ -293,5 +307,10 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
             _logger.LogError(ex, "Failed to bulk delete KV keys from namespace {NamespaceId}", namespaceId);
             throw;
         }
+    }
+
+    private static string EncodeKeyName(string keyName)
+    {
+        return Uri.EscapeDataString(keyName);
     }
 }
