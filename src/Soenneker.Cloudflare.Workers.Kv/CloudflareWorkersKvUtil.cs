@@ -51,6 +51,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         _logger.LogInformation("Creating KV namespace {Title} for account {AccountId}", title, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(cancellationToken).NoSync();
         var body = new WorkersKvCreateRenameNamespaceBody { Title = title };
+
         try
         {
             return await client.Accounts[accountId].Storage.Kv.Namespaces.PostAsync(body, null, cancellationToken).NoSync();
