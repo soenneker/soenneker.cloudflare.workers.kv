@@ -26,21 +26,22 @@ public sealed class CloudflareWorkersKvUtilTests : HostedUnitTest
     public async ValueTask Set_and_read_value(CancellationToken cancellationToken)
     {
         string accountId = _config.GetStringStrict("Cloudflare:AccountId");
+        string apiKey = _config.GetStringStrict("Cloudflare:ApiKey");
         string namespaceId = _config.GetStringStrict("Cloudflare:WorkersKv:NamespaceId");
         string key = $"workers-kv-test-{Guid.NewGuid():N}";
         const string value = "test-value";
 
         try
         {
-            await _util.PutValue(accountId, namespaceId, key, value, cancellationToken: cancellationToken);
+            await _util.PutValue(accountId, apiKey, namespaceId, key, value, cancellationToken: cancellationToken);
 
-            string? result = await _util.GetValueAsString(accountId, namespaceId, key, cancellationToken);
+            string? result = await _util.GetValueAsString(accountId, apiKey, namespaceId, key, cancellationToken);
 
             result.Should().Be(value);
         }
         finally
         {
-            await _util.DeleteKey(accountId, namespaceId, key, cancellationToken);
+            await _util.DeleteKey(accountId, apiKey, namespaceId, key, cancellationToken);
         }
     }
 
