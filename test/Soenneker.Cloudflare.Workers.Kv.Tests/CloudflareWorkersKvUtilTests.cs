@@ -22,6 +22,11 @@ public sealed class CloudflareWorkersKvUtilTests : HostedUnitTest
     }
 
     [Test]
+    public void Default()
+    {
+    }
+
+    [Test]
     [Skip("Manual")]
     public async ValueTask Set_and_read_value(CancellationToken cancellationToken)
     {
@@ -44,5 +49,4 @@ public sealed class CloudflareWorkersKvUtilTests : HostedUnitTest
             await _util.DeleteKey(accountId, apiKey, namespaceId, key, cancellationToken);
         }
     }
-
 }

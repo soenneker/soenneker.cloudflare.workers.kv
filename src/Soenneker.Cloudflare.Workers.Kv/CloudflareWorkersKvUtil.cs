@@ -193,7 +193,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
-        ArgumentException.ThrowIfNullOrEmpty(keyName);
+        ArgumentException.ThrowIfNullOrEmpty(keyName); 
         ArgumentNullException.ThrowIfNull(value);
         _logger.LogDebug("Putting KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
