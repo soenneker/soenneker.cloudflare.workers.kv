@@ -17,7 +17,6 @@ using Soenneker.Extensions.Stream;
 
 namespace Soenneker.Cloudflare.Workers.Kv;
 
-/// <inheritdoc cref="ICloudflareWorkersKvUtil"/>
 public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
 {
     private readonly ICloudflareClientUtil _clientUtil;
@@ -151,7 +150,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
-            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)]
+            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName]
                                .GetAsync(null, cancellationToken).NoSync();
         }
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
@@ -214,7 +213,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
 
         try
         {
-            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)]
+            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName]
                         .PutAsync(multipartBody, requestConfig, cancellationToken).NoSync();
         }
         catch (WorkersKvApiResponseCommonFailure ex)
@@ -243,7 +242,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         var body = new WithKey_nameDeleteRequestBody();
         try
         {
-            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[EncodeKeyName(keyName)]
+            await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName]
                         .DeleteAsync(body, null, cancellationToken).NoSync();
         }
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
@@ -303,7 +302,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
-            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Metadata[EncodeKeyName(keyName)]
+            return await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Metadata[keyName]
                                .GetAsync(null, cancellationToken).NoSync();
         }
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
@@ -402,11 +401,6 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
             _logger.LogError(ex, "Failed to bulk delete KV keys from namespace {NamespaceId}", namespaceId);
             throw;
         }
-    }
-
-    private static string EncodeKeyName(string keyName)
-    {
-        return Uri.EscapeDataString(keyName);
     }
 
     private static InvalidOperationException CreateFailureException(string operation, string keyName,
