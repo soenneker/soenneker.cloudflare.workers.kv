@@ -17,6 +17,7 @@ using Soenneker.Extensions.Stream;
 
 namespace Soenneker.Cloudflare.Workers.Kv;
 
+/// <inheritdoc cref="ICloudflareWorkersKvUtil" />
 public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
 {
     private readonly ICloudflareClientUtil _clientUtil;
