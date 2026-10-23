@@ -18,7 +18,7 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="accountId">The Cloudflare account ID.</param>
     /// <param name="apiKey">The Cloudflare API token.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceListNamespaces200?> ListNamespaces(string accountId, string apiKey, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceListNamespaces200Response?> ListNamespaces(string accountId, string apiKey, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a KV namespace with the given title.
@@ -27,7 +27,7 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="apiKey">The Cloudflare API token.</param>
     /// <param name="title">Human-readable name for the namespace.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceCreateANamespace200?> CreateNamespace(string accountId, string apiKey, string title, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceCreateANamespace200Response?> CreateNamespace(string accountId, string apiKey, string title, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a namespace by ID.
@@ -36,7 +36,7 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="apiKey">The Cloudflare API token.</param>
     /// <param name="namespaceId">The namespace ID.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceGetANamespace200?> GetNamespace(string accountId, string apiKey, string namespaceId, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceGetANamespace200Response?> GetNamespace(string accountId, string apiKey, string namespaceId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Renames a namespace.
@@ -46,7 +46,7 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="namespaceId">The namespace ID.</param>
     /// <param name="title">New human-readable name.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceRenameANamespace200?> RenameNamespace(string accountId, string apiKey, string namespaceId, string title, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceRenameANamespace200Response?> RenameNamespace(string accountId, string apiKey, string namespaceId, string title, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a namespace.
@@ -101,12 +101,12 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="limit">Max keys to return (default 100).</param>
     /// <param name="cursor">Pagination cursor from previous response.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceListANamespaceSKeys200?> ListKeys(string accountId, string apiKey, string namespaceId, string? prefix = null, int? limit = null, string? cursor = null, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceListANamespaceSKeys200Response?> ListKeys(string accountId, string apiKey, string namespaceId, string? prefix = null, int? limit = null, string? cursor = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Reads metadata for a key (no value).
     /// </summary>
-    ValueTask<WorkersKvNamespaceReadTheMetadataForAKey200?> GetKeyMetadata(string accountId, string apiKey, string namespaceId, string keyName, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceReadTheMetadataForAKey200Response?> GetKeyMetadata(string accountId, string apiKey, string namespaceId, string keyName, CancellationToken cancellationToken = default);
 
     // Bulk operations
     /// <summary>
@@ -119,15 +119,15 @@ public interface ICloudflareWorkersKvUtil
     /// <param name="withMetadata">Include metadata in response.</param>
     /// <param name="type">Text or Json for value parsing.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    ValueTask<WorkersKvNamespaceGetMultipleKeyValuePairs200?> BulkGet(string accountId, string apiKey, string namespaceId, IReadOnlyList<string> keys, bool withMetadata = false, WorkersKvNamespaceGetMultipleKeyValuePairs_type? type = null, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceGetMultipleKeyValuePairs200Response?> BulkGet(string accountId, string apiKey, string namespaceId, IReadOnlyList<string> keys, bool withMetadata = false, WorkersKvNamespaceGetMultipleKeyValuePairsRequestType? type = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Writes multiple key-value pairs (up to 10,000). Request size must be 100 MB or less.
     /// </summary>
-    ValueTask<WorkersKvNamespaceWriteMultipleKeyValuePairs200?> BulkPut(string accountId, string apiKey, string namespaceId, IReadOnlyList<WorkersKvBulkWriteItem> pairs, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceWriteMultipleKeyValuePairs200Response?> BulkPut(string accountId, string apiKey, string namespaceId, IReadOnlyList<WorkersKvBulkWriteItem> pairs, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes multiple keys (up to 10,000).
     /// </summary>
-    ValueTask<WorkersKvNamespaceDeleteMultipleKeyValuePairs200?> BulkDelete(string accountId, string apiKey, string namespaceId, IReadOnlyList<string> keys, CancellationToken cancellationToken = default);
+    ValueTask<WorkersKvNamespaceDeleteMultipleKeyValuePairs200Response?> BulkDelete(string accountId, string apiKey, string namespaceId, IReadOnlyList<string> keys, CancellationToken cancellationToken = default);
 }

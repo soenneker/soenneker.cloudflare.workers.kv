@@ -29,7 +29,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         _logger = logger;
     }
 
-    public async ValueTask<WorkersKvNamespaceListNamespaces200?> ListNamespaces(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceListNamespaces200Response?> ListNamespaces(string accountId, string apiKey,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -49,7 +49,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceCreateANamespace200?> CreateNamespace(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceCreateANamespace200Response?> CreateNamespace(string accountId, string apiKey,
         string title, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -57,7 +57,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(title);
         _logger.LogInformation("Creating KV namespace {Title} for account {AccountId}", title, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
-        var body = new WorkersKvCreateRenameNamespaceBody { Title = title };
+        var body = new WorkersKvCreateNamespaceBody { Title = title };
 
         try
         {
@@ -71,7 +71,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceGetANamespace200?> GetNamespace(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceGetANamespace200Response?> GetNamespace(string accountId, string apiKey,
         string namespaceId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -92,7 +92,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceRenameANamespace200?> RenameNamespace(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceRenameANamespace200Response?> RenameNamespace(string accountId, string apiKey,
         string namespaceId, string title, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -124,13 +124,10 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         _logger.LogInformation("Deleting KV namespace {NamespaceId} for account {AccountId}", namespaceId, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
-        var body =
-            new Soenneker.Cloudflare.OpenApiClient.Accounts.Item.Storage.Kv.Namespaces.Item.
-                WithNamespace_DeleteRequestBody();
         try
         {
             await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId]
-                        .DeleteAsync(body, null, cancellationToken).NoSync();
+                        .DeleteAsync(cancellationToken: cancellationToken).NoSync();
         }
         catch (Exception ex)
         {
@@ -199,16 +196,16 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         var multipartBody = new MultipartBody();
         multipartBody.AddOrReplacePart("value", "text/plain", value);
-        Action<RequestConfiguration<WithKey_nameItemRequestBuilder.WithKey_nameItemRequestBuilderPutQueryParameters>>?
+        Action<RequestConfiguration<WithKeyNameItemRequestBuilder.WithKeyNameItemRequestBuilderPutQueryParameters>>?
             requestConfig = null;
         if (expirationTtlSeconds.HasValue || expirationUnixSeconds.HasValue)
         {
             requestConfig = config =>
             {
                 if (expirationTtlSeconds.HasValue)
-                    config.QueryParameters.ExpirationTtl = expirationTtlSeconds.Value.ToString();
+                    config.QueryParameters.ExpirationTtl = expirationTtlSeconds.Value;
                 if (expirationUnixSeconds.HasValue)
-                    config.QueryParameters.Expiration = expirationUnixSeconds.Value.ToString();
+                    config.QueryParameters.Expiration = expirationUnixSeconds.Value;
             };
         }
 
@@ -240,11 +237,10 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(keyName);
         _logger.LogDebug("Deleting KV key {KeyName} from namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
-        var body = new WithKey_nameDeleteRequestBody();
         try
         {
             await client.Accounts[accountId].Storage.Kv.Namespaces[namespaceId].Values[keyName]
-                        .DeleteAsync(body, null, cancellationToken).NoSync();
+                        .DeleteAsync(cancellationToken: cancellationToken).NoSync();
         }
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
         {
@@ -264,7 +260,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceListANamespaceSKeys200?> ListKeys(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceListANamespaceSKeys200Response?> ListKeys(string accountId, string apiKey,
         string namespaceId, string? prefix = null, int? limit = null, string? cursor = null,
         CancellationToken cancellationToken = default)
     {
@@ -292,7 +288,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceReadTheMetadataForAKey200?> GetKeyMetadata(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceReadTheMetadataForAKey200Response?> GetKeyMetadata(string accountId, string apiKey,
         string namespaceId, string keyName, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -326,9 +322,9 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceGetMultipleKeyValuePairs200?> BulkGet(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceGetMultipleKeyValuePairs200Response?> BulkGet(string accountId, string apiKey,
         string namespaceId, IReadOnlyList<string> keys, bool withMetadata = false,
-        WorkersKvNamespaceGetMultipleKeyValuePairs_type? type = null, CancellationToken cancellationToken = default)
+        WorkersKvNamespaceGetMultipleKeyValuePairsRequestType? type = null, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -338,7 +334,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
             throw new ArgumentException("Maximum 100 keys allowed for bulk get.", nameof(keys));
         _logger.LogDebug("Bulk getting {Count} KV keys from namespace {NamespaceId}", keys.Count, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
-        var body = new WorkersKvNamespaceGetMultipleKeyValuePairs
+        var body = new WorkersKvNamespaceGetMultipleKeyValuePairsRequest
         {
             Keys = new List<string>(keys),
             WithMetadata = withMetadata,
@@ -356,7 +352,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceWriteMultipleKeyValuePairs200?> BulkPut(string accountId, string apiKey,
+    public async ValueTask<WorkersKvNamespaceWriteMultipleKeyValuePairs200Response?> BulkPut(string accountId, string apiKey,
         string namespaceId, IReadOnlyList<WorkersKvBulkWriteItem> pairs, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -380,7 +376,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
     }
 
-    public async ValueTask<WorkersKvNamespaceDeleteMultipleKeyValuePairs200?> BulkDelete(string accountId,
+    public async ValueTask<WorkersKvNamespaceDeleteMultipleKeyValuePairs200Response?> BulkDelete(string accountId,
         string apiKey, string namespaceId, IReadOnlyList<string> keys, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
@@ -414,7 +410,7 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
 
     private static string GetFailureMessage(WorkersKvApiResponseCommonFailure exception)
     {
-        List<WorkersKvMessagesItem>? errors = exception.Errors?.Value;
+        List<WorkersKvMessagesItem>? errors = exception.Errors;
 
         if (errors == null || errors.Count == 0)
             return exception.Message;
