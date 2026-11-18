@@ -34,7 +34,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
     {
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
-        _logger.LogDebug("Listing KV namespaces for account {AccountId}", accountId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Listing KV namespaces for account {AccountId}", accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
 
         try
@@ -77,7 +78,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
-        _logger.LogDebug("Getting KV namespace {NamespaceId} for account {AccountId}", namespaceId, accountId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Getting KV namespace {NamespaceId} for account {AccountId}", namespaceId, accountId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
@@ -144,7 +146,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         ArgumentException.ThrowIfNullOrEmpty(keyName);
-        _logger.LogDebug("Getting KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Getting KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
@@ -192,7 +195,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         ArgumentException.ThrowIfNullOrEmpty(keyName); 
         ArgumentNullException.ThrowIfNull(value);
-        _logger.LogDebug("Putting KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Putting KV value for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         var multipartBody = new MultipartBody();
         multipartBody.AddOrReplacePart("value", "text/plain", value);
@@ -235,7 +239,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         ArgumentException.ThrowIfNullOrEmpty(keyName);
-        _logger.LogDebug("Deleting KV key {KeyName} from namespace {NamespaceId}", keyName, namespaceId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Deleting KV key {KeyName} from namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
@@ -244,7 +249,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         }
         catch (WorkersKvApiResponseCommonFailure ex) when (ex.ResponseStatusCode == 404)
         {
-            _logger.LogDebug("KV key {KeyName} in namespace {NamespaceId} was already absent", keyName, namespaceId);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug("KV key {KeyName} in namespace {NamespaceId} was already absent", keyName, namespaceId);
         }
         catch (WorkersKvApiResponseCommonFailure ex)
         {
@@ -267,7 +273,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrEmpty(accountId);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
-        _logger.LogDebug("Listing KV keys in namespace {NamespaceId}", namespaceId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Listing KV keys in namespace {NamespaceId}", namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
@@ -295,7 +302,8 @@ public sealed class CloudflareWorkersKvUtil : ICloudflareWorkersKvUtil
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrEmpty(namespaceId);
         ArgumentException.ThrowIfNullOrEmpty(keyName);
-        _logger.LogDebug("Getting KV metadata for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Getting KV metadata for key {KeyName} in namespace {NamespaceId}", keyName, namespaceId);
         CloudflareOpenApiClient client = await _clientUtil.Get(apiKey, cancellationToken).NoSync();
         try
         {
